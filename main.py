@@ -3,6 +3,7 @@ from scipy.io.wavfile import write
 import matplotlib.pyplot as plt
 import numpy as np
 import subprocess
+import sys
 import os
 
 
@@ -18,11 +19,27 @@ def get_sin_wave(amplitude, frequency, time, phase):
     return amplitude * np.sin(2 * np.pi * frequency * time + phase)
 
 
+def print_help_contents():
+    print(f'syntax: {sys.argv[0]} <Phone Keypad>')
+    print(f'sample: {sys.argv[0]} #')
+    print(f'range:\n    Phone Keypad: 0 ~ 9 | * | #')
+
+
 if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print('[ERR] Illegal Format')
+        print_help_contents()
+        exit(1)
+
+    if sys.argv[1] not in dtmf_frequencies.keys():
+        print('[ERR] Out-Of-Range Parameter')
+        print_help_contents()
+        exit(1)
+
     sampling_frequency = 100000
     duration           = 0.5
     time_array         = np.linspace(0, duration, int(sampling_frequency * duration))
-    f1, f2             = dtmf_frequencies['2']
+    f1, f2             = dtmf_frequencies[sys.argv[1]]
     dtmf_signal        = get_sin_wave(1, f1, time_array, 0) + get_sin_wave(1, f2, time_array, 0)
     frequencies        = np.fft.fftfreq(len(dtmf_signal), sampling_frequency ** -1)
     dtmf_fft           = np.fft.fft(dtmf_signal)
